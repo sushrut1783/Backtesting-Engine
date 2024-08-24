@@ -11,7 +11,6 @@ from Bardata import BarData
 
 def Dates(start_date : str, end_date : str):
     date = []
-    
     return date
 
 
@@ -26,6 +25,7 @@ class Engine():
         self.traded_file_path = None
         self.traded_orders = {}
         self.requested_orders = []
+        self.total_pnl = None
         return
 
     def DataLoader(self):
@@ -68,7 +68,17 @@ class Engine():
         return
     
     def calculatePnl(self,contract,trade_price,quantity):
-        if trade_price is None or np.isnan(trade_price):
+
+
+        if trade_price is None:
+            contract_bar_close_px = self.Bar_Data.loc[self.Bar_Data['contract_name']==contract,'close']
+            if not contract_bar_close_px.empty :
+                trade_price = contract_bar_close_px.iloc[0]
+            else :
+                trade_price = np.nan
+                return
+            
+        if np.isnan(trade_price):
             return
         
         
@@ -146,6 +156,19 @@ class Engine():
         with open(req_order_file,'w',newline='') as file:
             writer = csv.writer(file)
             writer.writerows(self.requested_orders)
+
+        if self.total_pnl is None:
+            self.total_pnl = 0
+        
+        for contracts in self.traded_orders:
+            if self.traded_orders[contracts]['quantity'] == 0:
+                self.total_pnl = self.total_pnl + self.traded_orders[contracts]['pnl']
+            else:
+                # self.calculatePnl(contracts,None,self.traded_orders[contracts]['quantity'])
+                self.tradeExecution(contract=contracts,quantity= -self.traded_orders[contracts]['quantity'])
+                self.total_pnl = self.total_pnl + self.traded_orders[contracts]['pnl']
+        
+        print("Total Pnl of the strategy is ",self.total_pnl)
         
         return 
         
