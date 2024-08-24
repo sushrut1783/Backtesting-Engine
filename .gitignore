@@ -1,0 +1,12 @@
+2_second_data.csv
+2024-06-03 091500.000000000.csv
+2024-06-03_Requested_orders.csv
+2024-06-03_Traded_orders.csv
+backtest.ipynb
+example.csv
+extraction.ipynb
+sample.ipynb
+test_case.csv
+*.csv
+to do
+__pycache__/*
